@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Feed - DEVNET{% endblock %}
+
+{% block content %}
+<div class="feed-container">
+    <div class="feed-main">
+        <div class="feed-header">
+            <h1>Feed</h1>
+            <p>Conecte-se com a comunidade de desenvolvedores</p>
+        </div>
+
+        <div class="post-form">
+            <div class="post-form-content">
+                <div class="user-avatar-small">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <form id="post-form">
+                    <div class="form-group">
+                        <textarea id="content" name="content" placeholder="No que você está trabalhando?" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="code_snippet" name="code_snippet" placeholder="Código (opcional)"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="ai-suggest-btn" class="btn-secondary">
+                            <i class="fas fa-robot"></i> Sugestão IA
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-paper-plane"></i> Publicar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="posts" id="posts-container">
+            {% if posts %}
+                {% for post in posts %}
+                <div class="post" data-post-id="{{ post.id }}">
+                    <div class="post-header">
+                        <div class="post-user-info">
+                            <div class="user-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="user-details">
+                                <div class="post-author">
+                                    <a href="/user/{{ post.user.id }}">
+                                        <strong>{{ post.user.username }}</strong>
+                                    </a>
+                                    {% if post.user.github_username %}
+                                    <span class="github-link">
+                                        <i class="fab fa-github"></i>
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div class="post-meta">
+                                    <span class="post-date">{{ post.created_at.strftime('%d/%m/%Y') }}</span>
+                                    {% if post.user.skills %}
+                                    <span class="user-role">{{ post.user.skills.split(',')[0] }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-menu">
+                            <button class="menu-btn">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="post-content">
+                        <div class="post-text">
+                            {{ post.content | safe }}
+                        </div>
+                        {% if post.code_snippet %}
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-language">{{ post.language or 'text' }}</span>
+                                <button class="copy-btn" onclick="copyCode(this)">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code class="language-{{ post.language or 'text' }}">{{ post.code_snippet }}</code></pre>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="post-stats">
+                        <span class="stat">{{ post.likes|length }} curtidas</span>
+                        <span class="stat">{{ post.comments|length }} comentários</span>
+                    </div>
+
+                    <div class="post-actions">
+                        <button class="action-btn like-btn" data-post-id="{{ post.id }}">
+                            <i class="far fa-thumbs-up"></i>
+                            <span>Curtir</span>
+                        </button>
+                        <button class="action-btn comment-btn" data-post-id="{{ post.id }}">
+                            <i class="far fa-comment"></i>
+                            <span>Comentar</span>
+                        </button>
+                        <button class="action-btn share-btn" data-post-id="{{ post.id }}">
+                            <i class="far fa-share"></i>
+                            <span>Compartilhar</span>
+                        </button>
+                    </div>
+
+                    <div class="comments-section" id="comments-{{ post.id }}">
+                        {% for comment in post.comments %}
+                        <div class="comment">
+                            <div class="comment-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="comment-content">
+                                <div class="comment-header">
+                                    <strong><a href="/user/{{ comment.user.id }}">{{ comment.user.username }}</a></strong>
+                                    <span class="comment-date">{{ comment.created_at.strftime('%d/%m') }}</span>
+                                </div>
+                                <div class="comment-text">{{ comment.content }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="comment-form" id="comment-form-{{ post.id }}" style="display: none;">
+                        <div class="comment-input-container">
+                            <div class="comment-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="comment-input">
+                                <textarea placeholder="Escreva um comentário..." id="comment-text-{{ post.id }}"></textarea>
+                                <div class="comment-actions">
+                                    <button class="btn-secondary" onclick="cancelComment({{ post.id }})">Cancelar</button>
+                                    <button class="btn-primary" onclick="addComment({{ post.id }})">Comentar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-feed">
+                    <div class="empty-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Seu feed está vazio</h3>
+                    <p>Conecte-se com outros desenvolvedores e veja o que estão compartilhando.</p>
+                    <a href="#post-form" class="btn-primary">Criar primeiro post</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <aside class="feed-sidebar">
+        <div class="sidebar-section">
+            <h3><i class="fas fa-fire"></i> Tendências</h3>
+            <div class="trending-topics">
+                <a href="#" class="trending-topic">
+                    <span class="topic-name">#React</span>
+                    <span class="topic-count">1.2k posts</span>
+                </a>
+                <a href="#" class="trending-topic">
+                    <span class="topic-name">#Python</span>
+                    <span class="topic-count">890 posts</span>
+                </a>
+                <a href="#" class="trending-topic">
+                    <span class="topic-name">#JavaScript</span>
+                    <span class="topic-count">756 posts</span>
+                </a>
+                <a href="#" class="trending-topic">
+                    <span class="topic-name">#DevOps</span>
+                    <span class="topic-count">543 posts</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3><i class="fas fa-star"></i> Destaques da Semana</h3>
+            <div class="featured-posts">
+                <div class="featured-post">
+                    <div class="featured-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="featured-content">
+                        <div class="featured-title">Como otimizar queries no PostgreSQL</div>
+                        <div class="featured-author">por Maria Silva</div>
+                        <div class="featured-stats">127 curtidas • 23 comentários</div>
+                    </div>
+                </div>
+                <div class="featured-post">
+                    <div class="featured-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="featured-content">
+                        <div class="featured-title">Melhores práticas com Docker</div>
+                        <div class="featured-author">por João Santos</div>
+                        <div class="featured-stats">95 curtidas • 18 comentários</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3><i class="fas fa-users"></i> Conexões Sugeridas</h3>
+            <div class="suggested-connections">
+                <div class="connection">
+                    <div class="connection-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="connection-info">
+                        <div class="connection-name">Ana Costa</div>
+                        <div class="connection-role">Full Stack Developer</div>
+                        <button class="btn-connect">Conectar</button>
+                    </div>
+                </div>
+                <div class="connection">
+                    <div class="connection-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="connection-info">
+                        <div class="connection-name">Carlos Oliveira</div>
+                        <div class="connection-role">DevOps Engineer</div>
+                        <button class="btn-connect">Conectar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}

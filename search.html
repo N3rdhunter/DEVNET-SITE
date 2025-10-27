@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Buscar - DEVNET{% endblock %}
+
+{% block content %}
+<section class="search">
+    <div class="search-bar">
+        <form action="{{ url_for('search') }}" method="GET">
+            <input type="text" name="q" value="{{ query }}" placeholder="Buscar usuários, posts, repositórios..." required>
+            <button type="submit" class="btn-primary">Buscar</button>
+        </form>
+    </div>
+
+    {% if query %}
+    <h2>Resultados para "{{ query }}"</h2>
+
+    {% if results.users %}
+    <div class="search-section">
+        <h3>Usuários</h3>
+        {% for user in results.users %}
+        <div class="user-result">
+            <strong>{{ user.username }}</strong>
+            {% if user.bio %}
+            <p>{{ user.bio }}</p>
+            {% endif %}
+            {% if user.skills %}
+            <p>Habilidades: {{ user.skills }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if results.posts %}
+    <div class="search-section">
+        <h3>Posts</h3>
+        {% for post in results.posts %}
+        <div class="post-result">
+            <div class="post-header">
+                <strong>{{ post.user.username }}</strong>
+                <span class="post-date">{{ post.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
+            <p>{{ post.content }}</p>
+            {% if post.code_snippet %}
+            <pre><code class="language-javascript">{{ post.code_snippet }}</code></pre>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if results.repositories %}
+    <div class="search-section">
+        <h3>Repositórios</h3>
+        {% for repo in results.repositories %}
+        <div class="repo-result">
+            <h4>{{ repo.name }}</h4>
+            <p>{{ repo.description }}</p>
+            <div class="repo-meta">
+                <span class="language">{{ repo.language }}</span>
+                <span class="created">{{ repo.created_at.strftime('%d/%m/%Y') }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not results.users and not results.posts and not results.repositories %}
+    <p>Nenhum resultado encontrado para "{{ query }}".</p>
+    {% endif %}
+    {% else %}
+    <p>Digite algo para buscar.</p>
+    {% endif %}
+</section>
+{% endblock %}

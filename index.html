@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}DEVNET - Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-logo">
+        <i class="fas fa-fingerprint logo-icon"></i>
+        <h1>DEVNET</h1>
+    </div>
+    <h2>Bem-vindo ao DEVNET</h2>
+    <p>A rede social única para programadores. Compartilhe código, colabore em projetos e conecte-se com a comunidade.</p>
+    <a href="{{ url_for('register') }}" class="btn-primary">Começar Agora</a>
+</section>
+
+<section class="features">
+    <div class="feature">
+        <h3>Compartilhe Código</h3>
+        <p>Publique snippets de código, projetos completos e receba feedback da comunidade.</p>
+    </div>
+    <div class="feature">
+        <h3>Colabore em Tempo Real</h3>
+        <p>Trabalhe em projetos colaborativos com salas de codificação ao vivo.</p>
+    </div>
+    <div class="feature">
+        <h3>Gamificação</h3>
+        <p>Ganhe badges, suba no ranking e participe de desafios de programação.</p>
+    </div>
+    <div class="feature">
+        <h3>Busca Avançada</h3>
+        <p>Encontre código, usuários e projetos com nossa poderosa ferramenta de busca.</p>
+    </div>
+</section>
+{% endblock %}

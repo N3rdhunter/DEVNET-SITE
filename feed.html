@@ -1,231 +1,265 @@
-{% extends "base.html" %}
-
-{% block title %}Feed - DEVNET{% endblock %}
-
-{% block content %}
-<div class="feed-container">
-    <div class="feed-main">
-        <div class="feed-header">
-            <h1>Feed</h1>
-            <p>Conecte-se com a comunidade de desenvolvedores</p>
-        </div>
-
-        <div class="post-form">
-            <div class="post-form-content">
-                <div class="user-avatar-small">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <form id="post-form">
-                    <div class="form-group">
-                        <textarea id="content" name="content" placeholder="No que você está trabalhando?" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="code_snippet" name="code_snippet" placeholder="Código (opcional)"></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" id="ai-suggest-btn" class="btn-secondary">
-                            <i class="fas fa-robot"></i> Sugestão IA
-                        </button>
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-paper-plane"></i> Publicar
-                        </button>
-                    </div>
-                </form>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed - DEVNET</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23007bff'><path d='M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 9H14V4H19V9M12 11C13.66 11 15 12.34 15 14C15 15.66 13.66 17 12 17C10.34 17 9 15.66 9 14C9 12.34 10.34 11 12 11Z'/></svg>" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-fingerprint logo-icon"></i>
+                <a href="index.html">DEVNET</a>
             </div>
-        </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="feed.html">Feed</a></li>
+                <li><a href="search.html">Buscar</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html">Registrar</a></li>
+            </ul>
+            <div class="settings">
+                <select id="language-select">
+                    <option value="pt">Português</option>
+                    <option value="en">English</option>
+                </select>
+                <button id="theme-toggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </nav>
+    </header>
 
-        <div class="posts" id="posts-container">
-            {% if posts %}
-                {% for post in posts %}
-                <div class="post" data-post-id="{{ post.id }}">
-                    <div class="post-header">
-                        <div class="post-user-info">
-                            <div class="user-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="user-details">
-                                <div class="post-author">
-                                    <a href="/user/{{ post.user.id }}">
-                                        <strong>{{ post.user.username }}</strong>
-                                    </a>
-                                    {% if post.user.github_username %}
-                                    <span class="github-link">
-                                        <i class="fab fa-github"></i>
-                                    </span>
-                                    {% endif %}
-                                </div>
-                                <div class="post-meta">
-                                    <span class="post-date">{{ post.created_at.strftime('%d/%m/%Y') }}</span>
-                                    {% if post.user.skills %}
-                                    <span class="user-role">{{ post.user.skills.split(',')[0] }}</span>
-                                    {% endif %}
-                                </div>
-                            </div>
+    <main>
+        <div class="feed-container">
+            <div class="left-sidebar">
+                <div class="sidebar-section">
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user-circle"></i>
                         </div>
-                        <div class="post-menu">
-                            <button class="menu-btn">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
+                        <div class="user-info">
+                            <strong>Seu Nome</strong>
+                            <p>Ver perfil</p>
+                            <button id="change-avatar" class="btn-secondary">Alterar Foto</button>
                         </div>
                     </div>
+                </div>
+                <div class="sidebar-section">
+                    <ul class="sidebar-nav">
+                        <li><a href="feed.html"><i class="fas fa-home"></i> Feed</a></li>
+                        <li><a href="search.html"><i class="fas fa-search"></i> Buscar</a></li>
+                        <li><a href="#"><i class="fas fa-users"></i> Amigos</a></li>
+                        <li><a href="#"><i class="fas fa-code"></i> Projetos</a></li>
+                    </ul>
+                </div>
+            </div>
 
-                    <div class="post-content">
-                        <div class="post-text">
-                            {{ post.content | safe }}
+            <div class="feed-main">
+                <div class="feed-header">
+                    <h1>Feed</h1>
+                    <p>Conecte-se com a comunidade de desenvolvedores</p>
+                </div>
+
+                <div class="post-form">
+                    <div class="post-form-content">
+                        <div class="user-avatar-small">
+                            <i class="fas fa-user-circle"></i>
                         </div>
-                        {% if post.code_snippet %}
-                        <div class="code-block">
-                            <div class="code-header">
-                                <span class="code-language">{{ post.language or 'text' }}</span>
-                                <button class="copy-btn" onclick="copyCode(this)">
-                                    <i class="far fa-copy"></i>
+                        <form id="post-form">
+                            <div class="form-group">
+                                <textarea id="content" name="content" placeholder="No que você está trabalhando?" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <textarea id="code_snippet" name="code_snippet" placeholder="Código (opcional)"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="ai-suggest-btn" class="btn-secondary">
+                                    <i class="fas fa-robot"></i> Sugestão IA
+                                </button>
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Publicar
                                 </button>
                             </div>
-                            <pre><code class="language-{{ post.language or 'text' }}">{{ post.code_snippet }}</code></pre>
-                        </div>
-                        {% endif %}
+                        </form>
                     </div>
+                </div>
 
-                    <div class="post-stats">
-                        <span class="stat">{{ post.likes|length }} curtidas</span>
-                        <span class="stat">{{ post.comments|length }} comentários</span>
-                    </div>
-
-                    <div class="post-actions">
-                        <button class="action-btn like-btn" data-post-id="{{ post.id }}">
-                            <i class="far fa-thumbs-up"></i>
-                            <span>Curtir</span>
-                        </button>
-                        <button class="action-btn comment-btn" data-post-id="{{ post.id }}">
-                            <i class="far fa-comment"></i>
-                            <span>Comentar</span>
-                        </button>
-                        <button class="action-btn share-btn" data-post-id="{{ post.id }}">
-                            <i class="far fa-share"></i>
-                            <span>Compartilhar</span>
-                        </button>
-                    </div>
-
-                    <div class="comments-section" id="comments-{{ post.id }}">
-                        {% for comment in post.comments %}
-                        <div class="comment">
-                            <div class="comment-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="comment-content">
-                                <div class="comment-header">
-                                    <strong><a href="/user/{{ comment.user.id }}">{{ comment.user.username }}</a></strong>
-                                    <span class="comment-date">{{ comment.created_at.strftime('%d/%m') }}</span>
+                <div class="posts" id="posts-container">
+                    <div class="post">
+                        <div class="post-header">
+                            <div class="post-user-info">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user-circle"></i>
                                 </div>
-                                <div class="comment-text">{{ comment.content }}</div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="comment-form" id="comment-form-{{ post.id }}" style="display: none;">
-                        <div class="comment-input-container">
-                            <div class="comment-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="comment-input">
-                                <textarea placeholder="Escreva um comentário..." id="comment-text-{{ post.id }}"></textarea>
-                                <div class="comment-actions">
-                                    <button class="btn-secondary" onclick="cancelComment({{ post.id }})">Cancelar</button>
-                                    <button class="btn-primary" onclick="addComment({{ post.id }})">Comentar</button>
+                                <div class="user-details">
+                                    <div class="post-author">
+                                        <strong>João Silva</strong>
+                                    </div>
+                                    <div class="post-time">2 horas atrás</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="empty-feed">
-                    <div class="empty-icon">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <h3>Seu feed está vazio</h3>
-                    <p>Conecte-se com outros desenvolvedores e veja o que estão compartilhando.</p>
-                    <a href="#post-form" class="btn-primary">Criar primeiro post</a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
+                        <div class="post-content">
+                            <p>Trabalhando em um novo projeto Flask!</p>
+                            <pre><code class="language-python">from flask import Flask
+app = Flask(__name__)
 
-    <aside class="feed-sidebar">
-        <div class="sidebar-section">
-            <h3><i class="fas fa-fire"></i> Tendências</h3>
-            <div class="trending-topics">
-                <a href="#" class="trending-topic">
-                    <span class="topic-name">#React</span>
-                    <span class="topic-count">1.2k posts</span>
-                </a>
-                <a href="#" class="trending-topic">
-                    <span class="topic-name">#Python</span>
-                    <span class="topic-count">890 posts</span>
-                </a>
-                <a href="#" class="trending-topic">
-                    <span class="topic-name">#JavaScript</span>
-                    <span class="topic-count">756 posts</span>
-                </a>
-                <a href="#" class="trending-topic">
-                    <span class="topic-name">#DevOps</span>
-                    <span class="topic-count">543 posts</span>
-                </a>
+@app.route('/')
+def hello():
+    return 'Hello, World!'
+
+if __name__ == '__main__':
+    app.run()</code></pre>
+                        </div>
+                        <div class="post-actions">
+                            <button class="btn-like">
+                                <i class="fas fa-heart"></i> 5
+                            </button>
+                            <button class="btn-comment">
+                                <i class="fas fa-comment"></i> 2
+                            </button>
+                            <button class="btn-share">
+                                <i class="fas fa-share"></i> Compartilhar
+                            </button>
+                            <div class="reactions">
+                                <button class="reaction-btn" data-emoji="❤️">❤️</button>
+                                <button class="reaction-btn" data-emoji="👍">👍</button>
+                                <button class="reaction-btn" data-emoji="😂">😂</button>
+                                <button class="reaction-btn" data-emoji="😮">😮</button>
+                                <button class="reaction-btn" data-emoji="😢">😢</button>
+                            </div>
+                        </div>
+                        <div class="comments-section">
+                            <div class="comment">
+                                <div class="comment-avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="comment-content">
+                                    <strong>Maria Santos</strong> Ótimo projeto! Vou testar.
+                                    <div class="comment-time">1 hora atrás</div>
+                                </div>
+                            </div>
+                            <div class="comment">
+                                <div class="comment-avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="comment-content">
+                                    <strong>Pedro Lima</strong> Flask é demais!
+                                    <div class="comment-time">30 minutos atrás</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post">
+                        <div class="post-header">
+                            <div class="post-user-info">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="user-details">
+                                    <div class="post-author">
+                                        <strong>Ana Costa</strong>
+                                    </div>
+                                    <div class="post-time">4 horas atrás</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <p>Compartilhando um snippet útil para validação de email em JavaScript.</p>
+                            <pre><code class="language-javascript">function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}</code></pre>
+                        </div>
+                        <div class="post-actions">
+                            <button class="btn-like">
+                                <i class="fas fa-heart"></i> 12
+                            </button>
+                            <button class="btn-comment">
+                                <i class="fas fa-comment"></i> 5
+                            </button>
+                            <button class="btn-share">
+                                <i class="fas fa-share"></i> Compartilhar
+                            </button>
+                            <div class="reactions">
+                                <button class="reaction-btn" data-emoji="❤️">❤️</button>
+                                <button class="reaction-btn" data-emoji="👍">👍</button>
+                                <button class="reaction-btn" data-emoji="😂">😂</button>
+                                <button class="reaction-btn" data-emoji="😮">😮</button>
+                                <button class="reaction-btn" data-emoji="😢">😢</button>
+                            </div>
+                        </div>
+                        <div class="comments-section">
+                            <div class="comment">
+                                <div class="comment-avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="comment-content">
+                                    <strong>Carlos Eduardo</strong> Muito útil, obrigado!
+                                    <div class="comment-time">3 horas atrás</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-sidebar">
+                <div class="sidebar-section">
+                    <h3>Sugestões para você</h3>
+                    <div class="suggestion">
+                        <div class="user-avatar-small">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="suggestion-info">
+                            <strong>Lucas Ferreira</strong>
+                            <p>Desenvolvedor Full Stack</p>
+                            <button class="btn-secondary">Conectar</button>
+                        </div>
+                    </div>
+                    <div class="suggestion">
+                        <div class="user-avatar-small">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="suggestion-info">
+                            <strong>Beatriz Oliveira</strong>
+                            <p>Especialista em Python</p>
+                            <button class="btn-secondary">Conectar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <h3>Música</h3>
+                    <audio controls>
+                        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.wav" type="audio/wav">
+                        Seu navegador não suporta o elemento audio.
+                    </audio>
+                    <p>Adicione sua música favorita!</p>
+                </div>
             </div>
         </div>
+    </main>
 
-        <div class="sidebar-section">
-            <h3><i class="fas fa-star"></i> Destaques da Semana</h3>
-            <div class="featured-posts">
-                <div class="featured-post">
-                    <div class="featured-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="featured-content">
-                        <div class="featured-title">Como otimizar queries no PostgreSQL</div>
-                        <div class="featured-author">por Maria Silva</div>
-                        <div class="featured-stats">127 curtidas • 23 comentários</div>
-                    </div>
-                </div>
-                <div class="featured-post">
-                    <div class="featured-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="featured-content">
-                        <div class="featured-title">Melhores práticas com Docker</div>
-                        <div class="featured-author">por João Santos</div>
-                        <div class="featured-stats">95 curtidas • 18 comentários</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <footer>
+        <p>&copy; 2024 DEVNET. Todos os direitos reservados.</p>
+    </footer>
 
-        <div class="sidebar-section">
-            <h3><i class="fas fa-users"></i> Conexões Sugeridas</h3>
-            <div class="suggested-connections">
-                <div class="connection">
-                    <div class="connection-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="connection-info">
-                        <div class="connection-name">Ana Costa</div>
-                        <div class="connection-role">Full Stack Developer</div>
-                        <button class="btn-connect">Conectar</button>
-                    </div>
-                </div>
-                <div class="connection">
-                    <div class="connection-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="connection-info">
-                        <div class="connection-name">Carlos Oliveira</div>
-                        <div class="connection-role">DevOps Engineer</div>
-                        <button class="btn-connect">Conectar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </aside>
-</div>
-{% endblock %}
+    <script src="script.js"></script>
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                alert('Você precisa fazer login para acessar o feed.');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,36 +1,76 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar - DEVNET</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23007bff'><path d='M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 9H14V4H19V9M12 11C13.66 11 15 12.34 15 14C15 15.66 13.66 17 12 17C10.34 17 9 15.66 9 14C9 12.34 10.34 11 12 11Z'/></svg>" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-fingerprint logo-icon"></i>
+                <a href="index.html">DEVNET</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="feed.html">Feed</a></li>
+                <li><a href="search.html">Buscar</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html">Registrar</a></li>
+            </ul>
+            <div class="settings">
+                <select id="language-select">
+                    <option value="pt">Português</option>
+                    <option value="en">English</option>
+                </select>
+                <button id="theme-toggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </nav>
+    </header>
 
-{% block title %}Registrar - DEVNET{% endblock %}
+    <main>
+        <section class="auth-form">
+            <div class="auth-header">
+                <i class="fas fa-fingerprint auth-icon"></i>
+                <h2>Registrar-se</h2>
+            </div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="username">Nome de Usuário:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="bio">Bio (opcional):</label>
+                    <textarea id="bio" name="bio"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="skills">Habilidades (separadas por vírgula):</label>
+                    <input type="text" id="skills" name="skills">
+                </div>
+                <button type="submit" class="btn-primary">Registrar</button>
+            </form>
+            <p>Já tem uma conta? <a href="login.html">Faça login</a></p>
+        </section>
+    </main>
 
-{% block content %}
-<section class="auth-form">
-    <div class="auth-header">
-        <i class="fas fa-fingerprint auth-icon"></i>
-        <h2>Registrar-se</h2>
-    </div>
-    <form id="register-form">
-        <div class="form-group">
-            <label for="username">Nome de Usuário:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Senha:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div class="form-group">
-            <label for="bio">Bio (opcional):</label>
-            <textarea id="bio" name="bio"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="skills">Habilidades (separadas por vírgula):</label>
-            <input type="text" id="skills" name="skills">
-        </div>
-        <button type="submit" class="btn-primary">Registrar</button>
-    </form>
-    <p>Já tem uma conta? <a href="{{ url_for('login') }}">Faça login</a></p>
-</section>
-{% endblock %}
+    <footer>
+        <p>&copy; 2024 DEVNET. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

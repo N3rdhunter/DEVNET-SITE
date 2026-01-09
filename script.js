@@ -4,26 +4,9 @@ async function registerUser(event) {
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
 
-    try {
-        const response = await fetch('/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-            alert('Usuário registrado com sucesso!');
-            window.location.href = '/login';
-        } else {
-            alert(result.message);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Erro ao registrar usuário');
-    }
+    // For static demo, simulate registration
+    alert('Usuário registrado com sucesso!');
+    window.location.href = 'login.html';
 }
 
 async function loginUser(event) {
@@ -31,27 +14,10 @@ async function loginUser(event) {
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
 
-    try {
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-            localStorage.setItem('access_token', result.access_token);
-            alert('Login realizado com sucesso!');
-            window.location.href = '/feed';
-        } else {
-            alert(result.message);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Erro ao fazer login');
-    }
+    // For static demo, simulate login
+    localStorage.setItem('access_token', 'demo-token');
+    alert('Login realizado com sucesso!');
+    window.location.href = 'feed.html';
 }
 
 async function createPost(event) {
@@ -66,7 +32,7 @@ async function createPost(event) {
     const data = Object.fromEntries(formData);
 
     try {
-        const response = await fetch('/post', {
+        const response = await fetch('/api/post', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -78,7 +44,8 @@ async function createPost(event) {
         const result = await response.json();
         if (response.ok) {
             alert('Post criado com sucesso!');
-            location.reload();
+            loadPosts(); // Reload posts
+            event.target.reset();
         } else {
             alert(result.message);
         }
@@ -88,6 +55,174 @@ async function createPost(event) {
     }
 }
 
+// Load posts from API
+async function loadPosts() {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+        const response = await fetch('/api/posts', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (response.ok) {
+            const posts = await response.json();
+            renderPosts(posts);
+        } else {
+            console.error('Failed to load posts');
+        }
+    } catch (error) {
+        console.error('Error loading posts:', error);
+    }
+}
+
+// Render posts
+function renderPosts(posts) {
+    const container = document.getElementById('posts-container');
+    container.innerHTML = ''; // Clear existing
+
+    posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        postElement.innerHTML = `
+            <div class="post-header">
+                <div class="post-user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-details">
+                        <div class="post-author">
+                            <strong>${post.user}</strong>
+                        </div>
+                        <div class="post-time">${post.created_at}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="post-content">
+                <p>${post.content.replace(/\n/g, '<br>')}</p>
+                ${post.code_snippet ? `<pre><code class="language-javascript">${post.code_snippet}</code></pre>` : ''}
+            </div>
+            <div class="post-actions">
+                <button class="btn-like">
+                    <i class="fas fa-heart"></i> ${post.likes}
+                </button>
+                <button class="btn-comment">
+                    <i class="fas fa-comment"></i> ${post.comments.length}
+                </button>
+                <button class="btn-share">
+                    <i class="fas fa-share"></i> Compartilhar
+                </button>
+                <div class="reactions">
+                    <button class="reaction-btn" data-emoji="❤️">❤️</button>
+                    <button class="reaction-btn" data-emoji="👍">👍</button>
+                    <button class="reaction-btn" data-emoji="😂">😂</button>
+                    <button class="reaction-btn" data-emoji="😮">😮</button>
+                    <button class="reaction-btn" data-emoji="😢">😢</button>
+                </div>
+            </div>
+            <div class="comments-section">
+                ${post.comments.map(comment => `
+                    <div class="comment">
+                        <div class="comment-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="comment-content">
+                            <strong>${comment.user}</strong> ${comment.content}
+                            <div class="comment-time">${comment.created_at}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        container.appendChild(postElement);
+    });
+
+    // Re-apply Prism
+    Prism.highlightAll();
+}
+// Theme Toggle
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('theme-toggle');
+    const languageSelect = document.getElementById('language-select');
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark');
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    }
+
+    // Load saved language
+    const savedLang = localStorage.getItem('language') || 'pt';
+    languageSelect.value = savedLang;
+
+    // Theme toggle event
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    });
+
+    // Language select event
+    languageSelect.addEventListener('change', (e) => {
+        const lang = e.target.value;
+        localStorage.setItem('language', lang);
+        // For demo, just alert
+        alert(`Idioma alterado para ${lang === 'pt' ? 'Português' : 'English'}`);
+    });
+
+    // OAuth simulation
+    const githubBtn = document.querySelector('.github-btn');
+    const googleBtn = document.querySelector('.google-btn');
+    if (githubBtn) {
+        githubBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Login com GitHub simulado! Redirecionando...');
+            localStorage.setItem('access_token', 'demo-github-token');
+            window.location.href = 'feed.html';
+        });
+    }
+    if (googleBtn) {
+        googleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Login com Google simulado! Redirecionando...');
+            localStorage.setItem('access_token', 'demo-google-token');
+            window.location.href = 'feed.html';
+        });
+    }
+
+    // Update nav based on login status
+    const loginLink = document.querySelector('a[href="login.html"]');
+    const registerLink = document.querySelector('a[href="register.html"]');
+    if (localStorage.getItem('access_token')) {
+        if (loginLink) loginLink.textContent = 'Logout';
+        if (loginLink) loginLink.href = '#';
+        if (loginLink) loginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            alert('Logout realizado!');
+            window.location.href = 'index.html';
+        });
+        if (registerLink) registerLink.style.display = 'none';
+    }
+
+    // Change avatar
+    const changeAvatarBtn = document.getElementById('change-avatar');
+    if (changeAvatarBtn) {
+        const avatars = ['fa-user-circle', 'fa-user', 'fa-user-astronaut', 'fa-user-ninja', 'fa-user-secret'];
+        let currentAvatar = 0;
+        changeAvatarBtn.addEventListener('click', () => {
+            const avatarIcon = document.querySelector('.user-profile .user-avatar i');
+            if (avatarIcon) {
+                avatarIcon.className = `fas ${avatars[currentAvatar]}`;
+                currentAvatar = (currentAvatar + 1) % avatars.length;
+            }
+        });
+    }
+});
 async function createRepository(event) {
     event.preventDefault();
     const token = localStorage.getItem('access_token');
